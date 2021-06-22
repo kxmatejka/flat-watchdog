@@ -81,12 +81,10 @@ const convertor = {
 
 export const ulovdomov = async () => {
   const flats = await requestPost(URL, PARAMS)
-  logInfo(flats)
 
   const savedFlats = await firestore().collection('/flats')
     .where('source', '==', 'ULOVDOMOV')
     .withConverter<Partial<Flat>>(convertor)
-    .orderBy('externalId')
     .get()
 
   const savedFlatsIds = new Set()
