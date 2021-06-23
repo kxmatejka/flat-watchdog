@@ -6,10 +6,11 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     background: #fff;
+    font-family: 'Open Sans', sans-serif;
   }
 `
 
-const App: FC<{Component: any, pageProps: any}> = ({Component, pageProps}) => {
+const App: FC<{ Component: any, pageProps: any }> = ({Component, pageProps}) => {
   return (
     <>
       <GlobalStyle/>
