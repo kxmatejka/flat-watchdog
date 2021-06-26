@@ -13,6 +13,8 @@ import {
   Select,
   MenuItem,
 } from '@material-ui/core'
+import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary'
+import {Offers} from '../src/components/offers/offers'
 
 const StyledHeading = styled.h1`
   color: #282828;
@@ -85,14 +87,7 @@ const Filter = () => {
   )
 }
 
-const Offers = () => {
-  return (
-    <div>
-      <div>Na drážce blalala</div>
-      <div>1 hour ago | 14 000,- | photos</div>
-    </div>
-  )
-}
+
 
 export default function Home() {
   return (
