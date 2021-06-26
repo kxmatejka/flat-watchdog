@@ -6,7 +6,14 @@ const URL = 'https://www.ulovdomov.cz/fe-api/find'
 const PARAMS = {
   'query': 'Pardubice',
   'offer_type_id': '1',
-  'dispositions': [],
+  'dispositions': [
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+  ],
   'price_from': '',
   'price_to': '',
   'acreage_from': '',
@@ -17,7 +24,7 @@ const PARAMS = {
   'is_price_commision_free': null,
   'sort_by': '',
   'page': 1,
-  'limit': 20,
+  'limit': 100,
   'text': null,
   'zoom': null,
   'ne_lat': null,
@@ -27,12 +34,12 @@ const PARAMS = {
   'banner_panel_width_type': 480,
   'bounds': {
     'north_east': {
-      'lng': 15.836448669433596,
-      'lat': 50.08809796366313,
+      'lng': 15.840053558349611,
+      'lat': 50.08545454322119,
     },
     'south_west': {
-      'lng': 15.709762573242188,
-      'lat': 49.98445500410872,
+      'lng': 15.713367462158205,
+      'lat': 49.98180587165547,
     },
   },
   'average_first_contact_in_seconds': 840,

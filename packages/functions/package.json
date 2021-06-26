@@ -8,7 +8,8 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "firebase:emulators:start": "firebase emulators:start -P flat-watchdog --import ./data/firestore --export-on-exit"
+    "firebase:emulators:start": "firebase emulators:start -P flat-watchdog --import ./data/firestore --export-on-exit",
+    "deploy:scrapeUlovDomovEachHour": "firebase deploy -P flat-watchdog --only functions:scrapeUlovDomovEachHour"
   },
   "engines": {
     "node": "14"
