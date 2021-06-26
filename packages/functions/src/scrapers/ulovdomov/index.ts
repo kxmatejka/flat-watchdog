@@ -47,20 +47,18 @@ const convertor = {
     ...data,
     found: new Date(),
   }),
-  fromFirestore: (data: QueryDocumentSnapshot) => {
-    return flat.validateSync({
-      source: data.get('source'),
-      externalId: data.get('externalId'),
-      url: data.get('url'),
-      lng: data.get('lng'),
-      lat: data.get('lat'),
-      price: data.get('price'),
-      description: data.get('description'),
-      found: data.get('found').toDate(),
-      published: data.get('published').toDate(),
-      photos: data.get('photos'),
-    })
-  },
+  fromFirestore: (data: QueryDocumentSnapshot) => flat.validateSync({
+    source: data.get('source'),
+    externalId: data.get('externalId'),
+    url: data.get('url'),
+    lng: data.get('lng'),
+    lat: data.get('lat'),
+    price: data.get('price'),
+    description: data.get('description'),
+    found: data.get('found').toDate(),
+    published: data.get('published').toDate(),
+    photos: data.get('photos'),
+  }),
 }
 
 const requestFlats = async () => {
