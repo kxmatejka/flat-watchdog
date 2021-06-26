@@ -1,5 +1,6 @@
 import {logInfo, requestPost, firestore} from '../../lib'
-import type { QueryDocumentSnapshot } from 'firebase-functions/lib/providers/firestore'
+import {flat, flats, Flat} from '../../model'
+import type {QueryDocumentSnapshot} from 'firebase-functions/lib/providers/firestore'
 
 const URL = 'https://www.ulovdomov.cz/fe-api/find'
 const PARAMS = {
@@ -41,50 +42,51 @@ const PARAMS = {
   'is_banner_premium_board_brno': false,
 }
 
-interface Photo {
-  url: string
-}
-
-interface Flat {
-  source: 'ULOVDOMOV'
-  externalId: string
-  url: string
-  lng: number
-  lat: number
-  price: number
-  description: string
-  found: Date
-  published: Date
-  photos: Photo[]
-}
-
 const convertor = {
-  toFirestore: (data: Partial<Flat>) => ({
+  toFirestore: (data: Flat) => ({
     ...data,
-    externalId: String(data.externalId),
-    source: 'ULOVDOMOV',
     found: new Date(),
   }),
-  fromFirestore: (data: QueryDocumentSnapshot) => ({
-    source: data.get('source'),
-    externalId: data.get('externalId'),
-    url: data.get('url'),
-    lng: data.get('lng'),
-    lat: data.get('lat'),
-    price: data.get('price'),
-    description: data.get('description'),
-    found: data.get('found'),
-    published: data.get('published'),
-    photos: data.get('photos'),
-  }),
+  fromFirestore: (data: QueryDocumentSnapshot) => {
+    return flat.validateSync({
+      source: data.get('source'),
+      externalId: data.get('externalId'),
+      url: data.get('url'),
+      lng: data.get('lng'),
+      lat: data.get('lat'),
+      price: data.get('price'),
+      description: data.get('description'),
+      found: data.get('found').toDate(),
+      published: data.get('published').toDate(),
+      photos: data.get('photos'),
+    })
+  },
+}
+
+const requestFlats = async () => {
+  const response = await requestPost(URL, PARAMS)
+
+  const result = flats.validateSync(response.offers?.map((offer: any) => ({
+    source: 'ULOVDOMOV',
+    externalId: offer.id,
+    url: offer.absolute_url,
+    lng: offer.lng,
+    lat: offer.lat,
+    price: offer.price_rental + offer.price_monthly_fee,
+    description: offer.description,
+    published: new Date(offer.published_at),
+    photos: offer.photos?.map((photo: any) => ({url: photo.path})) ?? [],
+  })))
+
+  return (result) ? result : []
 }
 
 export const ulovdomov = async () => {
-  const flats = await requestPost(URL, PARAMS)
+  const flats = await requestFlats()
 
   const savedFlats = await firestore().collection('/flats')
     .where('source', '==', 'ULOVDOMOV')
-    .withConverter<Partial<Flat>>(convertor)
+    .withConverter<Flat>(convertor)
     .get()
 
   const savedFlatsIds = new Set()
@@ -93,23 +95,13 @@ export const ulovdomov = async () => {
     savedFlatsIds.add(flat.data().externalId)
   }
 
-  for (const offer of flats.offers) {
-    if (!savedFlatsIds.has(String(offer.id))) {
-      logInfo(`Found new offer id: ${offer.id}, url: ${offer.absolute_url}`)
+  for (const flat of flats) {
+    if (!savedFlatsIds.has(flat.externalId)) {
+      logInfo(`Found new offer id: ${flat.externalId}, url: ${flat.url}`)
       await firestore()
         .collection('/flats')
-        .withConverter<Partial<Flat>>(convertor)
-        .add({
-          externalId: offer.id,
-          url: offer.absolute_url,
-          lng: offer.lng,
-          lat: offer.lat,
-          price: offer.price_rental + offer.price_monthly_fee,
-          description: offer.description,
-          published: new Date(offer.published_at),
-          photos: offer.photos.map((photo: any) => ({url: photo.path})),
-        })
+        .withConverter(convertor)
+        .add(flat)
     }
   }
 }
-
