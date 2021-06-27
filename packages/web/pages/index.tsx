@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import dynamic  from 'next/dynamic'
 import {
   Box,
   Grid,
@@ -16,6 +17,11 @@ import {
 import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary'
 import {Offers} from '../src/components/offers/offers'
 
+// @ts-ignore
+const Map = dynamic(import('../src/components/map').then((module) => module.Map), {
+  ssr: false
+})
+
 const StyledHeading = styled.h1`
   color: #282828;
 `
@@ -23,10 +29,6 @@ const StyledHeading = styled.h1`
 const Container = styled.div`
   max-width: 1100px;
   margin: auto;
-`
-
-const Map = styled.img`
-  width: 100%;
 `
 
 const Filter = () => {
@@ -97,7 +99,7 @@ export default function Home() {
       </Box>
       <Grid container spacing={2}>
         <Grid item xs={8}>
-          <Map src='/maps.jpg' alt='map'/>
+          <Map/>
         </Grid>
         <Grid item xs={4}>
           <Filter/>
