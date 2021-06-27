@@ -6,19 +6,17 @@ const URL = 'https://www.sreality.cz/api/cs/v2/estates?category_main_cb=1&catego
 const fetchFlatsFromApi = async () => {
   const response = await requestGet(URL)
 
-  return createFlatsFromArray(response?._embedded?.estates, (record) => {
-    return {
-      source: 'SREALITY',
-      externalId: record.hash_id,
-      url: `https://www.sreality.cz/detail/pronajem/byt/_/${record.seo.locality}/${record.hash_id}`,
-      lng: record.gps.lon,
-      lat: record.gps.lat,
-      price: record.price,
-      description: record.name,
-      published: new Date(),
-      photos: record._links.images.map((image: any) => ({url: image.href})),
-    }
-  })
+  return createFlatsFromArray(response?._embedded?.estates, (record) => ({
+    source: 'SREALITY',
+    externalId: record.hash_id,
+    url: `https://www.sreality.cz/detail/pronajem/byt/_/${record.seo.locality}/${record.hash_id}`,
+    lng: record.gps.lon,
+    lat: record.gps.lat,
+    price: record.price,
+    description: record.name,
+    published: new Date(),
+    photos: record._links.images.map((image: any) => ({url: image.href})),
+  }))
 }
 
 const findFlatsBySourceInDb = () => findFlatsBySource('SREALITY')

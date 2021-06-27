@@ -51,19 +51,17 @@ const PARAMS = {
 const fetchFlatsFromApi = async () => {
   const response = await requestPostJson(URL, PARAMS)
 
-  return createFlatsFromArray(response.offers ?? [], (record) => {
-    return {
-      source: 'ULOVDOMOV',
-      externalId: record.id,
-      url: record.absolute_url,
-      lng: record.lng,
-      lat: record.lat,
-      price: record.price_rental + record.price_monthly_fee,
-      description: record.description,
-      published: new Date(record.published_at),
-      photos: record.photos?.map((photo: any) => ({url: photo.path})) ?? [],
-    }
-  })
+  return createFlatsFromArray(response.offers ?? [], (record) => ({
+    source: 'ULOVDOMOV',
+    externalId: record.id,
+    url: record.absolute_url,
+    lng: record.lng,
+    lat: record.lat,
+    price: record.price_rental + record.price_monthly_fee,
+    description: record.description,
+    published: new Date(record.published_at),
+    photos: record.photos?.map((photo: any) => ({url: photo.path})) ?? [],
+  }))
 }
 
 const findFlatsBySourceInDb = () => findFlatsBySource('ULOVDOMOV')

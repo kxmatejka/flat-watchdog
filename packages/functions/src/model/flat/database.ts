@@ -22,6 +22,14 @@ const convertor = {
   }),
 }
 
+export const getFlatById = async (documentId: string) => {
+  const result = await firestore().doc(`/flats/${documentId}`)
+    .withConverter(convertor)
+    .get()
+
+  return result.data() as Flat
+}
+
 export const findFlatsBySource = async (source: SupportedSource) => {
   const result = await firestore().collection('/flats')
     .where('source', '==', source)

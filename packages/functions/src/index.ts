@@ -3,4 +3,5 @@ export {
   scrapeBezrealitkyEachHour,
   scrapeSrealityEachHour,
   scrapeBytyEachHour,
+  onFlatCreate,
 } from './triggers'
