@@ -1,4 +1,4 @@
-import {flat, flats} from './types'
+import {flat} from './types'
 import type {Flat, SupportedSource} from './types'
 import type {QueryDocumentSnapshot} from 'firebase-functions/lib/providers/firestore'
 import {firestore} from '../../lib'
@@ -22,11 +22,13 @@ const convertor = {
   }),
 }
 
-export const findFlatsBySource = (source: SupportedSource) => {
-  return firestore().collection('/flats')
+export const findFlatsBySource = async (source: SupportedSource) => {
+  const result = await firestore().collection('/flats')
     .where('source', '==', source)
     .withConverter<Flat>(convertor)
     .get()
+
+  return result.docs.map((record) => record.data())
 }
 
 export const saveFlat = (flat: Flat) => {
@@ -34,4 +36,14 @@ export const saveFlat = (flat: Flat) => {
     .collection('/flats')
     .withConverter(convertor)
     .add(flat)
+}
+
+export const checkForNewFlats = async (flatsFromApi: Flat[], flatsFromDb: Flat[], onNewFlat: (flat: Flat) => Promise<void>) => {
+  const flatsFromDbIds = new Set(flatsFromDb.map((flat) => flat.externalId))
+
+  for (const flat of flatsFromApi) {
+    if (!flatsFromDbIds.has(flat.externalId)) {
+      await onNewFlat(flat)
+    }
+  }
 }

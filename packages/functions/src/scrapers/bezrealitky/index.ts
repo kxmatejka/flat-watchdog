@@ -1,5 +1,5 @@
 import {logInfo, postFormData} from '../../lib'
-import {createFlatsFromArray, findFlatsBySource, saveFlat} from '../../model'
+import {createFlatsFromArray, findFlatsBySource, saveFlat, checkForNewFlats} from '../../model'
 
 const URL = 'https://www.bezrealitky.cz/api/record/markers'
 const PARAMS = 'offerType=pronajem&estateType=byt&priceFrom=0&disposition=1-1%2C2-kk%2C2-1%2C3-kk%2C3-1%2C4-kk%2C4-1&boundary=%5B%5B%5B%7B%22lat%22%3A50%2C%22lng%22%3A12%7D%2C%7B%22lat%22%3A50%2C%22lng%22%3A16%7D%2C%7B%22lat%22%3A48%2C%22lng%22%3A16%7D%2C%7B%22lat%22%3A48%2C%22lng%22%3A12%7D%2C%7B%22lat%22%3A50%2C%22lng%22%3A12%7D%5D%5D%5D'
@@ -33,20 +33,13 @@ const fetchFlats = async () => {
 }
 
 export const bezrealitky = async () => {
-  const flats = await fetchFlats()
+  logInfo('Fetching flats from bezrealitky api')
+  const flatsFromApi = await fetchFlats()
+  logInfo('Finding bezrealitky flats in db')
+  const flatsFromDb = await findFlatsBySource('BEZREALITKY')
 
-  const savedFlats = await findFlatsBySource('BEZREALITKY')
-
-  const savedFlatsIds = new Set()
-
-  for (const flat of savedFlats.docs) {
-    savedFlatsIds.add(flat.data().externalId)
-  }
-
-  for (const flat of flats) {
-    if (!savedFlatsIds.has(flat.externalId)) {
-      logInfo(`Found new offer id: ${flat.externalId}, url: ${flat.url}`)
-      await saveFlat(flat)
-    }
-  }
+  await checkForNewFlats(flatsFromApi, flatsFromDb, async (flat) => {
+    logInfo(`Found new offer id: ${flat.externalId}, url: ${flat.url}`)
+    await saveFlat(flat)
+  })
 }
