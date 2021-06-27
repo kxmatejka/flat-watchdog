@@ -1,7 +1,7 @@
 import {flat} from './types'
 import type {Flat, SupportedSource} from './types'
 import type {QueryDocumentSnapshot} from 'firebase-functions/lib/providers/firestore'
-import {firestore} from '../../lib'
+import {firestore, logInfo} from '../../lib'
 
 const convertor = {
   toFirestore: (data: Flat) => ({
@@ -28,7 +28,7 @@ export const findFlatsBySource = async (source: SupportedSource) => {
     .withConverter<Flat>(convertor)
     .get()
 
-  return result.docs.map((record) => record.data())
+  return result.docs.map((record) => record.data()) as Flat[]
 }
 
 export const saveFlat = (flat: Flat) => {
@@ -52,4 +52,20 @@ export const checkForNewFlats = async (flatsFromApi: Flat[], flatsFromDb: Flat[]
   return {
     savedFlats,
   }
+}
+
+export const saveNewFlats = async (fetchFlatsFromApi: () => Promise<Flat[]>, findFlatsBySourceInDb: () => Promise<Flat[]>) => {
+  logInfo('Fetching flats from api')
+  const flatsFromApi = await fetchFlatsFromApi()
+  logInfo(`Found ${flatsFromApi.length} offers in api`)
+  logInfo('Finding ulovdomov flats in db')
+  const flatsFromDb = await findFlatsBySourceInDb()
+  logInfo(`Found ${flatsFromDb.length} offers in db`)
+
+  const {savedFlats} = await checkForNewFlats(flatsFromApi, flatsFromDb, async (flat) => {
+    logInfo(`Found new offer id: ${flat.externalId}, url: ${flat.url}`)
+    await saveFlat(flat)
+  })
+
+  logInfo(`Saved ${savedFlats} flats`)
 }

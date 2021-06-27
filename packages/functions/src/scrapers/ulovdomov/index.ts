@@ -1,5 +1,5 @@
-import {logInfo, requestPostJson} from '../../lib'
-import {createFlatsFromArray, findFlatsBySource, saveFlat, checkForNewFlats} from '../../model'
+import {requestPostJson} from '../../lib'
+import {createFlatsFromArray, findFlatsBySource, saveNewFlats} from '../../model'
 
 const URL = 'https://www.ulovdomov.cz/fe-api/find'
 const PARAMS = {
@@ -48,7 +48,7 @@ const PARAMS = {
   'is_banner_premium_board_brno': false,
 }
 
-const fetchFlats = async () => {
+const fetchFlatsFromApi = async () => {
   const response = await requestPostJson(URL, PARAMS)
 
   return createFlatsFromArray(response.offers ?? [], (record) => {
@@ -66,18 +66,6 @@ const fetchFlats = async () => {
   })
 }
 
-export const ulovdomov = async () => {
-  logInfo('Fetching flats from ulovdomov api')
-  const flatsFromApi = await fetchFlats()
-  logInfo(`Found ${flatsFromApi.length} offers in api`)
-  logInfo('Finding ulovdomov flats in db')
-  const flatsFromDb = await findFlatsBySource('ULOVDOMOV')
-  logInfo(`Found ${flatsFromDb.length} offers in db`)
+const findFlatsBySourceInDb = () => findFlatsBySource('ULOVDOMOV')
 
-  const {savedFlats} = await checkForNewFlats(flatsFromApi, flatsFromDb, async (flat) => {
-    logInfo(`Found new offer id: ${flat.externalId}, url: ${flat.url}`)
-    await saveFlat(flat)
-  })
-
-  logInfo(`Saved ${savedFlats} flats`)
-}
+export const ulovdomov = () => saveNewFlats(fetchFlatsFromApi, findFlatsBySourceInDb)
