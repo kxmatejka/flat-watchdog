@@ -5,12 +5,12 @@ const photo = yup.object().shape({
   url: yup.string(),
 })
 
-const SUPPORTED_SOURCES = ['ULOVDOMOV']
+const SUPPORTED_SOURCES = ['ULOVDOMOV', 'BEZREALITKY']
 
 export const flat = yup.object().shape({
   externalId: yup.string().required(),
   url: yup.string().required(),
-  description: yup.string().required(),
+  description: yup.string().defined(),
   lng: yup.number().required(),
   lat: yup.number().required(),
   price: yup.number().required(),

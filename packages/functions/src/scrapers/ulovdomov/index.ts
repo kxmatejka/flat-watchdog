@@ -1,4 +1,4 @@
-import {logInfo, requestPost, firestore} from '../../lib'
+import {logInfo, postJson, firestore} from '../../lib'
 import {flat, flats, Flat} from '../../model'
 import type {QueryDocumentSnapshot} from 'firebase-functions/lib/providers/firestore'
 
@@ -69,7 +69,7 @@ const convertor = {
 }
 
 const requestFlats = async () => {
-  const response = await requestPost(URL, PARAMS)
+  const response = await postJson(URL, PARAMS)
 
   const result = flats.validateSync(response.offers?.map((offer: any) => ({
     source: 'ULOVDOMOV',
