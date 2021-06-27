@@ -1,3 +1,4 @@
+import {useEffect, useState} from 'react'
 import styled from 'styled-components'
 import dynamic  from 'next/dynamic'
 import {
@@ -14,13 +15,30 @@ import {
   Select,
   MenuItem,
 } from '@material-ui/core'
-import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary'
+import {initializeApp, getApps} from 'firebase/app'
+import {getFirestore, collection, getDocs, query, limit, useFirestoreEmulator} from 'firebase/firestore'
 import {Offers} from '../src/components/offers/offers'
 
 // @ts-ignore
 const Map = dynamic(import('../src/components/map').then((module) => module.Map), {
   ssr: false
 })
+
+if (!getApps().length) {
+  initializeApp({
+    apiKey: 'AIzaSyAtTfUtkAZBacfjq6O31wksIQcCrc-FTyw',
+    authDomain: 'flat-watchdog.firebaseapp.com',
+    projectId: 'flat-watchdog',
+    storageBucket: 'flat-watchdog.appspot.com',
+    messagingSenderId: '532663141210',
+    appId: '1:532663141210:web:7e5f91c288225028fee963',
+    measurementId: 'G-E62C0CHN5F',
+  })
+}
+
+const firestore = getFirestore()
+// eslint-disable-next-line react-hooks/rules-of-hooks
+useFirestoreEmulator(firestore, 'localhost', 8080)
 
 const StyledHeading = styled.h1`
   color: #282828;
@@ -59,10 +77,10 @@ const Filter = () => {
       </div>
       <div>
         <FormControl style={{width: '150px'}}>
-          <InputLabel id="demo-simple-select-label">Order by date:</InputLabel>
+          <InputLabel id='demo-simple-select-label'>Order by date:</InputLabel>
           <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
+            labelId='demo-simple-select-label'
+            id='demo-simple-select'
             value={1}
             onChange={() => null}
           >
@@ -73,10 +91,10 @@ const Filter = () => {
       </div>
       <div>
         <FormControl style={{width: '150px'}}>
-          <InputLabel id="demo-simple-select-label">Order by price:</InputLabel>
+          <InputLabel id='demo-simple-select-label'>Order by price:</InputLabel>
           <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
+            labelId='demo-simple-select-label'
+            id='demo-simple-select'
             value={1}
             onChange={() => null}
           >
@@ -89,9 +107,34 @@ const Filter = () => {
   )
 }
 
-
+interface Flat {
+  externalId: string
+  description: string
+  url: string
+  lat: number
+  lng: number
+  price: number
+}
 
 export default function Home() {
+  const [flats, setFlats] = useState<Flat[]>([])
+
+  useEffect(() => {
+    const querySnapshot = getDocs(query(collection(firestore, 'flats'))).then((documents) => {
+      setFlats(documents.docs.map((record) => {
+        const data = record.data()
+        return {
+          externalId: data.externalId,
+          description: data.description,
+          url: data.url,
+          lat: data.lat,
+          lng: data.lng,
+          price: data.price,
+        }
+      }))
+    })
+  }, [])
+
   return (
     <Container>
       <Box>
@@ -99,7 +142,7 @@ export default function Home() {
       </Box>
       <Grid container spacing={2}>
         <Grid item xs={8}>
-          <Map/>
+          <Map flats={flats}/>
         </Grid>
         <Grid item xs={4}>
           <Filter/>
