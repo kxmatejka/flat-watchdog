@@ -1,11 +1,11 @@
-import {logInfo, postFormData} from '../../lib'
+import {logInfo, requestPostFormData} from '../../lib'
 import {createFlatsFromArray, findFlatsBySource, saveFlat, checkForNewFlats} from '../../model'
 
 const URL = 'https://www.bezrealitky.cz/api/record/markers'
 const PARAMS = 'offerType=pronajem&estateType=byt&priceFrom=0&disposition=1-1%2C2-kk%2C2-1%2C3-kk%2C3-1%2C4-kk%2C4-1&boundary=%5B%5B%5B%7B%22lat%22%3A50.069005%2C%22lng%22%3A15.704865%7D%2C%7B%22lat%22%3A50.068463%2C%22lng%22%3A15.839791%7D%2C%7B%22lat%22%3A50.006508%2C%22lng%22%3A15.842709%7D%2C%7B%22lat%22%3A50.00078%2C%22lng%22%3A15.730099%7D%5D%5D%5D'
 
 const fetchFlats = async () => {
-  const response = await postFormData(URL, PARAMS)
+  const response = await requestPostFormData(URL, PARAMS)
 
   return createFlatsFromArray(response, (record) => {
     const {

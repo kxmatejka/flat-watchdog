@@ -1,6 +1,12 @@
 import fetch from 'node-fetch'
 
-export const postJson = async (url: string, params?: any) => {
+export const requestGet = async (url: string) => {
+  const result = await fetch(url)
+
+  return result.json()
+}
+
+export const requestPostJson = async (url: string, params?: any) => {
   const result = await fetch(url, {
     method: 'POST',
     headers: {
@@ -12,7 +18,7 @@ export const postJson = async (url: string, params?: any) => {
   return result.json()
 }
 
-export  const postFormData = async (url: string, body?: string) => {
+export const requestPostFormData = async (url: string, body?: string) => {
   const result = await fetch(url, {
     method: 'POST',
     headers: {

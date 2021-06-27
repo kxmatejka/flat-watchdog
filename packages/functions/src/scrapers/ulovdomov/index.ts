@@ -1,4 +1,4 @@
-import {logInfo, postJson} from '../../lib'
+import {logInfo, requestPostJson} from '../../lib'
 import {createFlatsFromArray, findFlatsBySource, saveFlat, checkForNewFlats} from '../../model'
 
 const URL = 'https://www.ulovdomov.cz/fe-api/find'
@@ -49,7 +49,7 @@ const PARAMS = {
 }
 
 const fetchFlats = async () => {
-  const response = await postJson(URL, PARAMS)
+  const response = await requestPostJson(URL, PARAMS)
 
   return createFlatsFromArray(response.offers ?? [], (record) => {
     return {
