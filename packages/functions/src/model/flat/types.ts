@@ -6,6 +6,8 @@ const photo = yup.object().shape({
 })
 
 const SUPPORTED_SOURCES = ['ULOVDOMOV', 'BEZREALITKY']
+const SUPPORTED_SOURCES_AS_CONST = ['ULOVDOMOV', 'BEZREALITKY'] as const
+export type SupportedSource = typeof SUPPORTED_SOURCES_AS_CONST[number]
 
 export const flat = yup.object().shape({
   externalId: yup.string().required(),

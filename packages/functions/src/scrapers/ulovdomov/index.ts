@@ -1,6 +1,5 @@
-import {logInfo, postJson, firestore} from '../../lib'
-import {flat, flats, Flat} from '../../model'
-import type {QueryDocumentSnapshot} from 'firebase-functions/lib/providers/firestore'
+import {logInfo, postJson} from '../../lib'
+import {flats, findFlatsBySource, saveFlat} from '../../model'
 
 const URL = 'https://www.ulovdomov.cz/fe-api/find'
 const PARAMS = {
@@ -49,25 +48,6 @@ const PARAMS = {
   'is_banner_premium_board_brno': false,
 }
 
-const convertor = {
-  toFirestore: (data: Flat) => ({
-    ...data,
-    found: new Date(),
-  }),
-  fromFirestore: (data: QueryDocumentSnapshot) => flat.validateSync({
-    source: data.get('source'),
-    externalId: data.get('externalId'),
-    url: data.get('url'),
-    lng: data.get('lng'),
-    lat: data.get('lat'),
-    price: data.get('price'),
-    description: data.get('description'),
-    found: data.get('found').toDate(),
-    published: data.get('published').toDate(),
-    photos: data.get('photos'),
-  }),
-}
-
 const requestFlats = async () => {
   const response = await postJson(URL, PARAMS)
 
@@ -89,10 +69,7 @@ const requestFlats = async () => {
 export const ulovdomov = async () => {
   const flats = await requestFlats()
 
-  const savedFlats = await firestore().collection('/flats')
-    .where('source', '==', 'ULOVDOMOV')
-    .withConverter<Flat>(convertor)
-    .get()
+  const savedFlats = await findFlatsBySource('ULOVDOMOV')
 
   const savedFlatsIds = new Set()
 
@@ -103,10 +80,7 @@ export const ulovdomov = async () => {
   for (const flat of flats) {
     if (!savedFlatsIds.has(flat.externalId)) {
       logInfo(`Found new offer id: ${flat.externalId}, url: ${flat.url}`)
-      await firestore()
-        .collection('/flats')
-        .withConverter(convertor)
-        .add(flat)
+      await saveFlat(flat)
     }
   }
 }
