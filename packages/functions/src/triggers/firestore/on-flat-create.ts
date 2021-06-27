@@ -6,7 +6,12 @@ export const onFlatCreate = functions()
   .firestore
   .document('/flats/{flatId}')
   .onCreate((async (snapshot) => {
-    const parsedFlat = flat.validateSync(snapshot.data())
-    logInfo(`Found a new flat id: ${parsedFlat.externalId} url: ${parsedFlat.url}`)
+    logInfo(`Found a new flat id: ${snapshot.get('externalId')} url: ${snapshot.get('url')}`)
+
+    const parsedFlat = flat.validateSync({
+      ...snapshot.data(),
+      found: snapshot.get('found').toDate(),
+      published: snapshot.get('published').toDate(),
+    })
     await sendNotificationEmail(parsedFlat)
   }))
