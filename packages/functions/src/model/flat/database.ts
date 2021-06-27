@@ -39,11 +39,17 @@ export const saveFlat = (flat: Flat) => {
 }
 
 export const checkForNewFlats = async (flatsFromApi: Flat[], flatsFromDb: Flat[], onNewFlat: (flat: Flat) => Promise<void>) => {
+  let savedFlats = 0
   const flatsFromDbIds = new Set(flatsFromDb.map((flat) => flat.externalId))
 
   for (const flat of flatsFromApi) {
     if (!flatsFromDbIds.has(flat.externalId)) {
       await onNewFlat(flat)
+      savedFlats++
     }
+  }
+
+  return {
+    savedFlats,
   }
 }

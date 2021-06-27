@@ -33,12 +33,12 @@ const PARAMS = {
   'banner_panel_width_type': 480,
   'bounds': {
     'north_east': {
-      'lng': 15.840053558349611,
-      'lat': 50.08545454322119,
+      'lng': 15.839791,
+      'lat': 50.068463,
     },
     'south_west': {
-      'lng': 15.713367462158205,
-      'lat': 49.98180587165547,
+      'lng': 15.730099,
+      'lat': 50.00078,
     },
   },
   'average_first_contact_in_seconds': 840,
@@ -69,11 +69,15 @@ const fetchFlats = async () => {
 export const ulovdomov = async () => {
   logInfo('Fetching flats from ulovdomov api')
   const flatsFromApi = await fetchFlats()
+  logInfo(`Found ${flatsFromApi.length} offers in api`)
   logInfo('Finding ulovdomov flats in db')
   const flatsFromDb = await findFlatsBySource('ULOVDOMOV')
+  logInfo(`Found ${flatsFromDb.length} offers in db`)
 
-  await checkForNewFlats(flatsFromApi, flatsFromDb, async (flat) => {
+  const {savedFlats} = await checkForNewFlats(flatsFromApi, flatsFromDb, async (flat) => {
     logInfo(`Found new offer id: ${flat.externalId}, url: ${flat.url}`)
     await saveFlat(flat)
   })
+
+  logInfo(`Saved ${savedFlats} flats`)
 }
