@@ -1,5 +1,5 @@
 import {logInfo, postJson} from '../../lib'
-import {flats, findFlatsBySource, saveFlat} from '../../model'
+import {createFlatsFromArray, findFlatsBySource, saveFlat} from '../../model'
 
 const URL = 'https://www.ulovdomov.cz/fe-api/find'
 const PARAMS = {
@@ -51,19 +51,19 @@ const PARAMS = {
 const requestFlats = async () => {
   const response = await postJson(URL, PARAMS)
 
-  const result = flats.validateSync(response.offers?.map((offer: any) => ({
-    source: 'ULOVDOMOV',
-    externalId: offer.id,
-    url: offer.absolute_url,
-    lng: offer.lng,
-    lat: offer.lat,
-    price: offer.price_rental + offer.price_monthly_fee,
-    description: offer.description,
-    published: new Date(offer.published_at),
-    photos: offer.photos?.map((photo: any) => ({url: photo.path})) ?? [],
-  })))
-
-  return (result) ? result : []
+  return createFlatsFromArray(response.offers ?? [], (record) => {
+    return {
+      source: 'ULOVDOMOV',
+      externalId: record.id,
+      url: record.absolute_url,
+      lng: record.lng,
+      lat: record.lat,
+      price: record.price_rental + record.price_monthly_fee,
+      description: record.description,
+      published: new Date(record.published_at),
+      photos: record.photos?.map((photo: any) => ({url: photo.path})) ?? [],
+    }
+  })
 }
 
 export const ulovdomov = async () => {

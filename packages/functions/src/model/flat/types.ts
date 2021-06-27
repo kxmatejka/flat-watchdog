@@ -25,3 +25,9 @@ export const flat = yup.object().shape({
 export const flats = yup.array().of(flat)
 
 export type Flat = Asserts<typeof flat>
+
+export const createFlatsFromArray = (data: any[], parse: (record: any) => Partial<any>) => {
+  const result = flats.validateSync(data.map((record) => parse(record)))
+
+  return (result) ? result : []
+}
