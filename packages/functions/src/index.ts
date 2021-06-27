@@ -1,1 +1,1 @@
-export {scrapeUlovDomovEachHour} from './triggers'
+export {scrapeUlovDomovEachHour, scrapeBezrealitkyEachHour} from './triggers'
