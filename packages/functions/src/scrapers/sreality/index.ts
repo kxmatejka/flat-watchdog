@@ -8,6 +8,7 @@ const fetchFlatsFromApi = async () => {
 
   return createFlatsFromArray(response?._embedded?.estates, (record) => ({
     source: 'SREALITY',
+    offerType: 'RENT',
     externalId: record.hash_id,
     url: `https://www.sreality.cz/detail/pronajem/byt/_/${record.seo.locality}/${record.hash_id}`,
     lng: record.gps.lon,

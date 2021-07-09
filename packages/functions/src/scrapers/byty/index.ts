@@ -11,12 +11,13 @@ const fetchFlatsFromApi = async () => {
 
     return (!isDemand) ? {
       source: 'BYTY',
+      offerType: 'RENT',
       externalId: record.id_ad,
       url: record.byty_url,
       lng: record.y,
       lat: record.x,
       price: record.ad_price,
-      description: record.ad_text,
+      description: record.ad_head,
       published: new Date(),
       photos: [{
         url: record.ad_foto_url,

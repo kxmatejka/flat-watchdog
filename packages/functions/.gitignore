@@ -9,3 +9,6 @@ typings/
 node_modules/
 
 .env
+
+data/*
+!data/.gitkeep

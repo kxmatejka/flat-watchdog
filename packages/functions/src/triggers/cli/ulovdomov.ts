@@ -1,4 +1,4 @@
-import {ulovdomov} from '../../scrapers/ulovdomov'
+import {ulovdomov} from '../../scrapers'
 
 (async () => {
   await ulovdomov()

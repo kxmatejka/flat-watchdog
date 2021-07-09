@@ -8,5 +8,16 @@ export const sendNotificationEmail = (flat: Flat) => {
 <p><a href="${flat.url}">link</a></p>
 `
 
-  return sendMail('New apartment found', html)
+  let subject = 'Found:'
+  if (flat.description) {
+    subject += `${flat.description}, `
+  }
+  if (flat.disposition) {
+    subject += `D: ${flat.disposition}, `
+  }
+  if (flat.surface) {
+    subject += `S: ${flat.surface}, `
+  }
+
+  return sendMail(subject.replace(/,\s$/, ''), html)
 }

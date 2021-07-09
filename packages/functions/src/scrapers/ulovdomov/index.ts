@@ -1,18 +1,11 @@
 import {requestPostJson} from '../../lib'
-import {createFlatsFromArray, findFlatsBySource, saveNewFlats} from '../../model'
+import {createFlatsFromArray, findFlatsBySource, saveNewFlats, DISPOSITIONS} from '../../model'
 
 const URL = 'https://www.ulovdomov.cz/fe-api/find'
 const PARAMS = {
   'query': 'Pardubice',
   'offer_type_id': '1',
-  'dispositions': [
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-  ],
+  'dispositions': [],
   'price_from': '',
   'price_to': '',
   'acreage_from': '',
@@ -48,18 +41,38 @@ const PARAMS = {
   'is_banner_premium_board_brno': false,
 }
 
+const dispositionsMap = {
+  'shared_room': DISPOSITIONS.ROOM,
+  '1': DISPOSITIONS.STUDIO,
+  '2': DISPOSITIONS['1+kk'],
+  '3': DISPOSITIONS['1+1'],
+  '4': DISPOSITIONS['2+kk'],
+  '5': DISPOSITIONS['2+1'],
+  '6': DISPOSITIONS['3+kk'],
+  '7': DISPOSITIONS['3+1'],
+  '8': DISPOSITIONS['4+kk'],
+  '9': DISPOSITIONS['4+1'],
+  '5_and_more': DISPOSITIONS['5+'],
+  '29': DISPOSITIONS.HOUSE,
+  '16': DISPOSITIONS.ATYPICAL,
+}
+
 const fetchFlatsFromApi = async () => {
   const response = await requestPostJson(URL, PARAMS)
 
   return createFlatsFromArray(response.offers ?? [], (record) => ({
     source: 'ULOVDOMOV',
+    offerType: 'RENT',
     externalId: record.id,
     url: record.absolute_url,
     lng: record.lng,
     lat: record.lat,
-    price: record.price_rental + record.price_monthly_fee,
-    description: record.description,
+    price: record.price_rental,
+    surface: record.acreage,
+    description: '',
     published: new Date(record.published_at),
+    // @ts-ignore
+    disposition: dispositionsMap[String(record.disposition_id)],
     photos: record.photos?.map((photo: any) => ({url: photo.path})) ?? [],
   }))
 }
