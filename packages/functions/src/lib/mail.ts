@@ -14,8 +14,12 @@ export const sendMail = async (subject: string, content: string) => client
         },
         To: [
           {
-            Email: 'krystof.m.login@pm.me',
+            Email: config.MAIL1,
             Name: 'Kryštof',
+          },
+          {
+            Email: config.MAIL1,
+            Name: 'Nikola',
           },
         ],
         Subject: subject,
